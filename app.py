@@ -227,11 +227,31 @@ def main():
         st.plotly_chart(fig_gauge, use_container_width=True)
         
     with col2:
-        st.markdown("### 🤖 Model Performance")
-        st.info("The model is trained dynamically on the entire dataset using Multiple Linear Regression to ensure robust predictions.")
-        
-        st.metric(label="R² Score (Accuracy)", value=f"{r2:.2f}", help="Indicates how well the features explain the variance in price.")
-        st.metric(label="Mean Absolute Error", value=f"₹{mae:,.0f}", delta_color="inverse", help="Average absolute difference between predicted and actual prices.")
+        st.markdown("### 📈 Market Comparison")
+        # Histogram of prices in the selected city
+        city_df = df[df['City'] == selected_city]
+        if not city_df.empty:
+            fig_hist = px.histogram(city_df, x="Estimated Sale Price (INR)", 
+                                    title=f"Price Distribution in {selected_city}",
+                                    nbins=30,
+                                    color_discrete_sequence=["#3b82f6"],
+                                    template="plotly_dark")
+            
+            # Add vertical line for the predicted price
+            fig_hist.add_vline(x=predicted_price, line_width=3, line_dash="dash", line_color="#ef4444", 
+                               annotation_text="Your Prediction", annotation_position="top right")
+            
+            fig_hist.update_layout(
+                plot_bgcolor="rgba(0,0,0,0)", 
+                paper_bgcolor="rgba(0,0,0,0)",
+                margin=dict(t=40, b=0, l=0, r=0),
+                height=350,
+                xaxis_title="Price (INR)",
+                yaxis_title="Number of Properties"
+            )
+            st.plotly_chart(fig_hist, use_container_width=True)
+        else:
+            st.info("Not enough data to show market distribution.")
         
     st.markdown("---")
     
